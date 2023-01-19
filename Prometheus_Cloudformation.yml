@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Can contain only ASCII characters.
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  VPCID:
+    Description: VPC ID for Prometheus Server
+    Type: String
+  VPCCidr:
+    Description: VPC CIDR for the Prometheus Sec Group Ingress rule of SSH
+    Type: String
+
+
+
+Resources:
+
+  PrometheusServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
+      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref VPCCidr
+      - IpProtocol: tcp
+        FromPort: 9090
+        ToPort: 9090
+        CidrIp: 0.0.0.0/0
+
+
+
+  PrometheusEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      KeyName: !Ref 'KeyName'
+      IamInstanceProfile: !Ref PrometheusProfile
+      AvailabilityZone: 
+        Fn::Select:
+         - 0
+         - Fn::GetAZs: {Ref: 'AWS::Region'}
+      #SubnetId: !Ref PrivateSubnetID
+      SecurityGroupIds: [!GetAtt PrometheusServerSecurityGroup.GroupId]
+      ImageId: !Ref LatestAmiId
+      Tags:
+        - Key: 'Name'
+          Value: 'Prometheus_Server'
+      UserData: 
+        Fn::Base64: 
+          !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install python3.7 -y
+            yum install java-1.8.0-openjdk-devel -y
+            yum install nmap-ncat -y
+            yum install git -y
+            yum erase awscli -y
+            yum install jq -y
+            amazon-linux-extras install docker -y
+            service docker start
+            usermod -a -G docker ec2-user
+
+
+  PrometheusRole: 
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonPrometheusQueryAccess
+        - arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess
+  PrometheusProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: !Join
+                            - '-'
+                            - - 'PrometheusProfile'
+                              - !Ref 'AWS::StackName'
+      Roles:
+        - !Ref PrometheusRole
+
+
+#========
+Outputs:
+#========
+  prometheusInstancePrivateDNS:
+    Description: The Public DNS for the Prometheus instance
+    Value: !GetAtt PrometheusEC2Instance.PrivateDnsName
+  SSHPrometheusInstance:
+    Description: SSH command for Kafka the EC2 instance
+    Value: !Sub ssh -A ec2-user@${PrometheusEC2Instance.PrivateDnsName}
+    Export:
+      Name: !Sub "${AWS::StackName}-PrometheusEC2Instance"
+  PrometheusSecurityGroupId:
+    Description: The security group id for the MSK Cluster
+    Value: !GetAtt PrometheusServerSecurityGroup.GroupId
+    Export:
+      Name: !Sub "${AWS::StackName}-PrometheusServerSecurityGroup"
+  InstanceId:
+    Description: InstanceId of the newly created Prometheus instance
+    Value: !Ref 'PrometheusEC2Instance'
+
+  

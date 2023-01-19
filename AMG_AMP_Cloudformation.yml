@@ -1,0 +1,137 @@
+Description: Amazon Grafana and Prometheus workspace stack
+Resources:
+  AmazonGrafanaWorkspaceIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonGrafanaAthenaAccess'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - grafana.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+  grafanaAmazonGrafanaCloudWatchPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AmazonGrafana_CloudWatch_policy
+      PolicyDocument:
+        Version:  "2012-10-17"
+        Statement:
+        - Sid: AllowReadingMetricsFromCloudWatch
+          Effect: Allow
+          Action:
+          - cloudwatch:DescribeAlarmsForMetric
+          - cloudwatch:DescribeAlarmHistory
+          - cloudwatch:DescribeAlarms
+          - cloudwatch:ListMetrics
+          - cloudwatch:GetMetricStatistics
+          - cloudwatch:GetMetricData
+          - cloudwatch:GetInsightRuleReport
+          Resource: "*"
+        - Sid: AllowReadingLogsFromCloudWatch
+          Effect: Allow
+          Action:
+          - logs:DescribeLogGroups
+          - logs:GetLogGroupFields
+          - logs:StartQuery
+          - logs:StopQuery
+          - logs:GetQueryResults
+          - logs:GetLogEvents
+          Resource: "*"
+        - Sid: AllowReadingTagsInstancesRegionsFromEC2
+          Effect: Allow
+          Action:
+          - ec2:DescribeTags
+          - ec2:DescribeInstances
+          - ec2:DescribeRegions
+          Resource: "*"
+        - Sid: AllowReadingResourcesForTags
+          Effect: Allow
+          Action: tag:GetResources
+          Resource: "*"
+      Roles: [!Ref AmazonGrafanaWorkspaceIAMRole]
+
+  grafanaAmazonGrafanaPrometheusPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AmazonGrafana_Prometheus_policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - aps:ListWorkspaces
+          - aps:DescribeWorkspace
+          - aps:QueryMetrics
+          - aps:GetLabels
+          - aps:GetSeries
+          - aps:GetMetricMetadata
+          Resource: "*"
+      Roles: [!Ref AmazonGrafanaWorkspaceIAMRole]
+
+
+  grafanaAmazonGrafanaSNSPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AmazonGrafana_SNS_policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - sns:Publish
+          Resource:
+            - arn:aws:sns:*:414029132545:grafana*
+      Roles: [!Ref AmazonGrafanaWorkspaceIAMRole]
+
+  AmazonGrafanaWorkspace:
+    Type: 'AWS::Grafana::Workspace'
+    Properties:
+      AccountAccessType: CURRENT_ACCOUNT
+      Name: AmazonGrafanaWorkspace
+      Description: Amazon Grafana Workspace
+      AuthenticationProviders:
+        - AWS_SSO
+      PermissionType: SERVICE_MANAGED
+      RoleArn: !GetAtt 
+        - AmazonGrafanaWorkspaceIAMRole
+        - Arn
+      DataSources: ["CLOUDWATCH","PROMETHEUS"]
+      OrganizationRoleName: "ADMIN"
+
+  APSWorkspace:
+    Type: AWS::APS::Workspace
+    Properties:
+      Alias: managedPrometheusDemo
+      Tags:
+        - Key: Environment
+          Value: Demo
+      
+
+Outputs:
+  WorkspaceEndpoint:
+    Value: !GetAtt 
+      - AmazonGrafanaWorkspace
+      - Endpoint
+  WorkspaceStatus:
+    Value: !GetAtt 
+      - AmazonGrafanaWorkspace
+      - Status
+  WorkspaceId:
+    Value: !Ref AmazonGrafanaWorkspace
+  GrafanaVersion:
+    Value: !GetAtt 
+      - AmazonGrafanaWorkspace
+      - GrafanaVersion
+  PrometheusEndpoint:
+    Value: !GetAtt 
+      - APSWorkspace
+      - PrometheusEndpoint
+  AMPWorkspaceId:
+    Value: !GetAtt 
+      - APSWorkspace
+      - WorkspaceId
