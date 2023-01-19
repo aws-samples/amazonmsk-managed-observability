@@ -13,6 +13,12 @@ CloudFormation Templates :
 	* AmazonMSK_Cloudformation.yml - Deploys resources for Amazon MSK
 	* AMG_AMP_Cloudformation.yml - Deploys resource for Amazon Managed Prometheus and Amazon Managed Grafana
 
+Grafana Dashboard JSON files : Use below files to import Grafana dashbaord for
+
+* AWS-MSK_KafkaCluster-Overview-Dashboard	-	Creates a dashboad to give overview of Amazon MSK Cluster
+* AWS-MSK_KafkaCluster-Metrics-Dashboard	-	Creates a dashboad to give topic level details for an Amazon MSK Cluster
+* AWS-MSK_KafkaCluster-CloudWatch-Dashboard	-	Creates a dashboad to give Amazon MSK Cluster CloudWatch Metrics
+
 
 
 ## Security
