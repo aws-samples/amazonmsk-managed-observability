@@ -110,7 +110,7 @@ Resources:
       Tags:
         - Key: Environment
           Value: Demo
-      
+
 
 Outputs:
   WorkspaceEndpoint:

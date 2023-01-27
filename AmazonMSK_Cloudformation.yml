@@ -144,6 +144,7 @@ Resources:
                 - !Ref 'AWS::AccountId'
                 - ':cluster/'
                 - !Ref MSKClusterName # ARN of the Cluster
+                - '/*'
         # At Topic level permission
         - Effect: Allow
           Action:

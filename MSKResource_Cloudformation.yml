@@ -435,7 +435,7 @@ Resources:
             su -c "echo ssl.truststore.location=/tmp/kafka.client.truststore.jks >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
             su -c "echo security.protocol=SASL_SSL >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
             su -c "echo sasl.mechanism=AWS_MSK_IAM >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-            su -c "echo sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required; >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
+            su -c "echo sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required\; >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
             su -c "echo sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
 
             # Download jar file for MSK IAM Authentication
@@ -485,14 +485,8 @@ Resources:
             Principal:
               Service: ec2.amazonaws.com
             Action: 'sts:AssumeRole'
-      Path: "/"
-      ManagedPolicyArns:
-#        - arn:aws:iam::aws:policy/AmazonMSKFullAccess
-#        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-#        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-#        - arn:aws:iam::aws:policy/AWSCertificateManagerPrivateCAFullAccess
-        - arn:aws:iam::aws:policy/AmazonPrometheusQueryAccess
-        - arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess
+      RoleName: PrometheusAMPRole
+      Description: Role to access AMP Workspace
   PrometheusProfile:
     Type: AWS::IAM::InstanceProfile
     Properties: 
@@ -502,6 +496,30 @@ Resources:
                               - !Ref 'AWS::StackName'
       Roles:
         - !Ref PrometheusRole
+
+#====
+# Managed Policy for Prometheus Server
+#====
+  PrometheusManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      Description: Managed Policy to access prometheus Workspace
+      ManagedPolicyName: PrometheusAccessToAMP
+      Path: /
+      PolicyDocument: 
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - aps:GetLabels
+          - aps:GetMetricMetadata
+          - aps:GetSeries
+          - aps:QueryMetrics
+          - aps:RemoteWrite
+          Resource: "*" 
+      Roles: 
+        - "PrometheusAMPRole"
+#====
 
 
   KafkaClientRole:
