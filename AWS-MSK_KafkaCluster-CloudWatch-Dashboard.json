@@ -44,8 +44,7 @@
         "panels": [
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "Only one controller per cluster should be active at any given time.\n",
             "fieldConfig": {
@@ -111,8 +110,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Cluster Name": "MSKWorkshopCluster"
@@ -137,8 +135,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "",
             "fieldConfig": {
@@ -198,8 +195,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -237,8 +233,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "",
             "fieldConfig": {
@@ -298,8 +293,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"                 
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -338,8 +332,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "",
             "fieldConfig": {
@@ -395,8 +388,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -423,8 +415,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "Connection status of broker's ZooKeeper session which may be one of the following: \n\nNOT_CONNECTED: '0.0', \n\nASSOCIATING: '0.1', \n\nCONNECTING: '0.5', \n\nCONNECTEDREADONLY: '0.8', \n\nCONNECTED: '1.0', \n\nCLOSED: '5.0', \n\nAUTH_FAILED: '10.0'.",
             "fieldConfig": {
@@ -484,8 +475,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -512,8 +502,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The total number of leaders of partitions per broker, not including replicas.",
             "fieldConfig": {
@@ -569,8 +558,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -597,8 +585,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The aggregated offset lag for all the partitions in a topic.",
             "fieldConfig": {
@@ -675,8 +662,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Cluster Name": "$cluster",
@@ -702,8 +688,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The mean latency in milliseconds for Apache ZooKeeper requests from broker.",
             "fieldConfig": {
@@ -783,8 +768,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Cluster Name": "$cluster"
@@ -809,8 +793,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "",
             "fieldConfig": {
@@ -921,8 +904,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Cluster Name": "$cluster"
@@ -961,8 +943,7 @@
         "panels": [
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1040,8 +1021,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1067,8 +1047,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1146,8 +1125,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1173,8 +1151,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1252,8 +1229,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1293,8 +1269,7 @@
         "panels": [
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1372,8 +1347,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1399,8 +1373,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1478,8 +1451,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1505,8 +1477,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1584,8 +1555,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1611,8 +1581,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -1690,8 +1659,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1731,8 +1699,7 @@
         "panels": [
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The percentage of disk space used for data logs.",
             "fieldConfig": {
@@ -1813,8 +1780,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1840,8 +1806,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The percentage of disk space used for application logs.",
             "fieldConfig": {
@@ -1922,8 +1887,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -1949,8 +1913,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "description": "The percentage of the root disk used by the broker.",
             "fieldConfig": {
@@ -2071,8 +2034,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2112,8 +2074,7 @@
         "panels": [
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2191,8 +2152,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2218,8 +2178,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2297,8 +2256,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2324,8 +2282,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2403,8 +2360,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2430,8 +2386,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2509,8 +2464,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2536,8 +2490,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2615,8 +2568,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2642,8 +2594,7 @@
           },
           {
             "datasource": {
-              "type": "cloudwatch",
-              "uid": "Z5Wc21v4z"
+              "type": "cloudwatch"
             },
             "fieldConfig": {
               "defaults": {
@@ -2721,8 +2672,7 @@
               {
                 "alias": "",
                 "datasource": {
-                  "type": "cloudwatch",
-                  "uid": "Z5Wc21v4z"
+                  "type": "cloudwatch"
                 },
                 "dimensions": {
                   "Broker ID": "*",
@@ -2785,8 +2735,7 @@
             "value": "default"
           },
           "datasource": {
-            "type": "cloudwatch",
-            "uid": "Z5Wc21v4z"
+            "type": "cloudwatch"
           },
           "definition": "regions()",
           "hide": 0,
@@ -2809,8 +2758,7 @@
             "value": "MSKWorkshopCluster"
           },
           "datasource": {
-            "type": "cloudwatch",
-            "uid": "Z5Wc21v4z"
+            "type": "cloudwatch"
           },
           "definition": "dimension_values(us-east-1,AWS/Kafka,CpuIdle,Cluster Name)",
           "hide": 0,

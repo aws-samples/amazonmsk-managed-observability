@@ -35,8 +35,7 @@
       {
         "collapsed": true,
         "datasource": {
-          "type": "prometheus",
-          "uid": "gN_a5uIVz"
+          "type": "prometheus"
         },
         "gridPos": {
           "h": 1,
@@ -111,8 +110,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "count by(job) (kafka_server_ReplicaManager_Value{job=\"$job\", name=\"LeaderCount\"})",
                 "format": "time_series",
@@ -192,8 +190,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "sum by (job)(kafka_controller_KafkaController_Value{name=\"ActiveControllerCount\"})",
                 "format": "time_series",
@@ -267,8 +264,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "sum by(job) (kafka_controller_KafkaController_Value{name=\"GlobalTopicCount\"})",
                 "format": "time_series",
@@ -347,8 +343,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "sum by(job) (kafka_server_ReplicaManager_Value{name=\"UnderReplicatedPartitions\"})",
                 "format": "time_series",
@@ -427,8 +422,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "sum by(job) (kafka_server_ReplicaManager_Value{name=\"PartitionCount\"})",
                 "format": "time_series",
@@ -506,8 +500,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "sum by(job) (kafka_server_ReplicaManager_Value{name=\"OfflineReplicaCount\"})",
                 "format": "time_series",
@@ -626,8 +619,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "exemplar": false,
                 "expr": "kafka_controller_KafkaController_Value{name=\"ActiveControllerCount\", job=\"$job\"}",
@@ -777,8 +769,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "exemplar": false,
                 "expr": "count by(name) (kafka_server_ReplicaManager_Value{name=\"LeaderCount\", job=~\"$job\"}) / sum by(name) (kafka_server_ReplicaManager_Value{name=\"PartitionCount\", job=\"$job\"}) * 100",
@@ -791,8 +782,7 @@
               },
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "exemplar": false,
                 "expr": "count by(name) (kafka_server_ReplicaManager_Value{name=\"LeaderCount\", job=~\"$job\"})",
@@ -805,8 +795,7 @@
               },
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "exemplar": false,
                 "expr": "count by(instance) (kafka_cluster_Partition_Value{name=\"ReplicasCount\", job=~\"$job\"})",
@@ -886,8 +875,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "expr": "100 - (kafka_network_SocketServer_Value{name=\"NetworkProcessorAvgIdlePercent\", job=~\"$job\", instance=~\"$broker\"} * 100)",
                 "format": "time_series",
@@ -904,8 +892,7 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "gN_a5uIVz"
+              "type": "prometheus"
             },
             "refId": "A"
           }
@@ -916,8 +903,7 @@
       {
         "collapsed": true,
         "datasource": {
-          "type": "prometheus",
-          "uid": "gN_a5uIVz"
+          "type": "prometheus"
         },
         "gridPos": {
           "h": 1,
@@ -987,8 +973,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"Produce\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1062,8 +1047,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"FetchConsumer\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1134,8 +1118,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"FetchFollower\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1203,8 +1186,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"Produce\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1300,8 +1282,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"FetchConsumer\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1397,8 +1378,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "avg by(request) (quantile(0.99, kafka_network_RequestMetrics_Count{name=\"TotalTimeMs\", request=\"FetchFollower\", job=~\"$job\", instance=~\"$broker\"}))",
@@ -1444,8 +1424,7 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "gN_a5uIVz"
+              "type": "prometheus"
             },
             "refId": "A"
           }
@@ -1456,8 +1435,7 @@
       {
         "collapsed": true,
         "datasource": {
-          "type": "prometheus",
-          "uid": "gN_a5uIVz"
+          "type": "prometheus"
         },
         "gridPos": {
           "h": 1,
@@ -1522,8 +1500,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sort(sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"MessagesInPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m])))",
@@ -1622,8 +1599,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sort(sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"BytesInPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m])))",
@@ -1720,8 +1696,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sort(sum by(instance) (irate(kafka_network_RequestMetrics_Count{request=~\"Produce\", job=~\"$job\", instance=~\"$broker\"}[5m])))",
@@ -1825,8 +1800,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"TotalProduceRequestsPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m]))",
@@ -1928,8 +1902,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sort(sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"BytesOutPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m])))",
@@ -2035,8 +2008,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"BytesOutPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m]))",
@@ -2049,8 +2021,7 @@
               },
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"BytesInPerSec\", job=~\"$job\", topic=~\"$topic\", instance=~\"$broker\"}[5m]))",
@@ -2100,8 +2071,7 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "gN_a5uIVz"
+              "type": "prometheus"
             },
             "refId": "A"
           }
@@ -2112,8 +2082,7 @@
       {
         "collapsed": true,
         "datasource": {
-          "type": "prometheus",
-          "uid": "gN_a5uIVz"
+          "type": "prometheus"
         },
         "gridPos": {
           "h": 1,
@@ -2176,8 +2145,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"FailedFetchRequestsPerSec\", job=~\"$job\", instance=~\"$broker\"}[5m]))",
@@ -2273,8 +2241,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"FailedProduceRequestsPerSec\", job=~\"$job\", instance=~\"$broker\"}[5m]))",
@@ -2370,8 +2337,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"FailedProduceRequestsPerSec\", job=~\"$job\", topic=~\"$topic\",instance=~\"$broker\"}[1m]))",
@@ -2467,8 +2433,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(topic) (irate(kafka_server_BrokerTopicMetrics_Count{name=~\"FailedFetchRequestsPerSec\", job=~\"$job\", topic=~\"$topic\",instance=~\"$broker\"}[1m]))",
@@ -2566,8 +2531,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_SessionExpireListener_Count{job=~\"$job\", name=~\"ZooKeeperDisconnectsPerSec\", instance=~\"$broker\"}[1m]))",
@@ -2663,8 +2627,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_SessionExpireListener_Count{job=~\"$job\", name=~\"ZooKeeperExpiresPerSec\", instance=~\"$broker\"}[1m]))",
@@ -2762,8 +2725,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (kafka_server_ZooKeeperClientMetrics_Count{job=~\"$job\", name=~\"ZooKeeperRequestLatencyMs\", instance=~\"$broker\"})",
@@ -2866,8 +2828,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_ReplicaManager_Count{job=~\"$job\", name=~\"IsrShrinksPerSec\", instance=~\"$broker\"}[1m]))",
@@ -2880,8 +2841,7 @@
               },
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_ReplicaManager_Count{job=~\"$job\", name=~\"IsrExpandsPerSec\", instance=~\"$broker\"}[1m]))",
@@ -2977,8 +2937,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_network_RequestMetrics_Count{request=~\"FetchFollower\", job=~\"$job\"}[5m]))",
@@ -3075,8 +3034,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_network_RequestMetrics_Count{request=~\"FetchConsumer\", job=~\"$job\"}[5m]))",
@@ -3178,8 +3136,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (kafka_server_DelayedOperationPurgatory_Value{delayedOperation=~\"Fetch\", job=~\"$job\", instance=~\"$broker\"})",
@@ -3276,8 +3233,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_server_BrokerTopicMetrics_Count{job=~\"$job\", name=~\"TotalFetchRequestsPerSec\", instance=~\"$broker\"}[1m]))",
@@ -3373,8 +3329,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum (irate(kafka_log_logflushstats_logflushrateandtimems_count{job=\"$job\",instance=~\"$broker\"}[5m]))by(instance)",
@@ -3473,8 +3428,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (kafka_server_DelayedOperationPurgatory_Value{job=~\"$job\", name=~\"NumDelayedOperations\", delayedOperation=~\"Produce\", instance=~\"$broker\"})",
@@ -3574,8 +3528,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (irate(kafka_controller_ControllerStats_Count{name=\"LeaderElectionRateAndTimeMs\", job=~\"$job\", instance=~\"$broker\"}[1m]))",
@@ -3738,8 +3691,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "exemplar": false,
@@ -3810,8 +3762,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "exemplar": false,
@@ -3910,8 +3861,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "exemplar": false,
@@ -4011,8 +3961,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum without(area)(java_lang_Memory_HeapMemoryUsage_used{job=\"$job\",instance=~\"$broker\"} )",
@@ -4058,8 +4007,7 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "gN_a5uIVz"
+              "type": "prometheus"
             },
             "refId": "A"
           }
@@ -4070,8 +4018,7 @@
       {
         "collapsed": true,
         "datasource": {
-          "type": "prometheus",
-          "uid": "gN_a5uIVz"
+          "type": "prometheus"
         },
         "gridPos": {
           "h": 1,
@@ -4133,8 +4080,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "expr": "sum by(instance) (java_lang_Memory_Verbose{job=~\"$job\"})",
@@ -4228,8 +4174,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "exemplar": true,
@@ -4324,8 +4269,7 @@
             "targets": [
               {
                 "datasource": {
-                  "type": "prometheus",
-                  "uid": "yQ3q8jS4z"
+                  "type": "prometheus"
                 },
                 "editorMode": "code",
                 "exemplar": true,
@@ -4373,8 +4317,7 @@
         "targets": [
           {
             "datasource": {
-              "type": "prometheus",
-              "uid": "gN_a5uIVz"
+              "type": "prometheus"
             },
             "refId": "A"
           }
