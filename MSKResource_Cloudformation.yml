@@ -502,6 +502,7 @@ Resources:
 #====
   PrometheusManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
+    DependsOn: PrometheusRole # Ensure Role is created first
     Properties: 
       Description: Managed Policy to access prometheus Workspace
       ManagedPolicyName: PrometheusAccessToAMP
