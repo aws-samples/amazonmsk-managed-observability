@@ -808,4 +808,11 @@ Outputs:
     Description: ARN of created MSK cluster
     Value: !Ref MSKCluster
 
+  KafkaClientPrivateIP:
+    Description: The Private IP of the Kafka Client
+    Value: !GetAtt KafkaClientEC2Instance.PrivateIp
+
+  PrometheusInstancePrivateIP:
+    Description: The Private IP of the Prometheus server
+    Value: !GetAtt PrometheusEC2Instance.PrivateIp
   
