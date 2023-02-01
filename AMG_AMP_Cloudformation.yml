@@ -113,15 +113,15 @@ Resources:
 
 
 Outputs:
-  WorkspaceEndpoint:
+  GrafanWorkspaceURL:
     Value: !GetAtt 
       - AmazonGrafanaWorkspace
       - Endpoint
-  WorkspaceStatus:
+  GrafanaWorkspaceStatus:
     Value: !GetAtt 
       - AmazonGrafanaWorkspace
       - Status
-  WorkspaceId:
+  GrafanaWorkspaceId:
     Value: !Ref AmazonGrafanaWorkspace
   GrafanaVersion:
     Value: !GetAtt 
@@ -135,3 +135,5 @@ Outputs:
     Value: !GetAtt 
       - APSWorkspace
       - WorkspaceId
+  PrometheusEndpointWriteURL:
+    Value: !Join ["" , [ !GetAtt APSWorkspace.PrometheusEndpoint , "api/v1/remote_write" ]]
