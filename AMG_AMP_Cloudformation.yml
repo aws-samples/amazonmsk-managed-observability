@@ -114,7 +114,7 @@ Resources:
 
 Outputs:
   GrafanWorkspaceURL:
-    Value: !Join ["" , [ !GetAtt AmazonGrafanaWorkspace.Endpoint , "/login" ]]
+    Value: !Join ["" , [ !GetAtt AmazonGrafanaWorkspace.Endpoint , "/" ]]
     #Value: !GetAtt 
     #  - AmazonGrafanaWorkspace
     #  - Endpoint

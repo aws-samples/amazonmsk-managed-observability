@@ -134,6 +134,7 @@ Resources:
 #====
   PrometheusManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
+    DependsOn:  PrometheusRole
     Properties: 
       Description: Managed Policy to access prometheus Workspace
       ManagedPolicyName: PrometheusAccessToAMP
@@ -155,6 +156,7 @@ Resources:
 #===
   MSKIAMManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
+    DependsOn:  KafkaClientRole
     Properties: 
       Description: Managed Policy to access MSK using IAM attached to KafkaClientRole
       ManagedPolicyName: MSKConnectAuthentication
