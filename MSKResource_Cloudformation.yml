@@ -26,6 +26,26 @@ Parameters:
     Type: String
     Default: '10.0.3.0/24'
 
+  SubnetID1:
+    Description: Subnet ID-1 from the existing VPC
+    Type: String
+  
+  SubnetID2:
+    Description: Subnet ID-2 from the existing VPC
+    Type: String
+
+  SubnetID3:
+    Description: Subnet ID-3 from the existing VPC
+    Type: String
+
+  PublicSubnetID:
+    Description: Subnet ID-4 from the existing VPC
+    Type: String
+
+  VPCID:
+    Description: VPC ID for the existing VPC
+    Type: String
+
   MSKClusterName:
     Description: Name of the Amazon MSK Cluster
     Type: String
@@ -85,6 +105,7 @@ Conditions:
 #=========
 Resources:
 #=========
+#======== VPC Related Resource Creation - Begin =========
   VPC:
     Type: AWS::EC2::VPC
     Condition: ShouldCreateResource
@@ -242,16 +263,20 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnetMSKThree
 
+#======== VPC Related Resource Creation - End =========
+  
   KafkaClientInstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      VpcId: !Ref VPC
+      #VpcId: !Ref VPCID
+      VpcId:  !If [ShouldCreateResource, !Ref VPC, !Ref VPCID]
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: !Ref PublicOneCidr
+        CidrIp: !If [ShouldCreateResource, !Ref PublicOneCidr, !Ref VPCCidr] #!Ref PublicOneCidr
+        #VPCCidr
       - IpProtocol: tcp
         FromPort: 3500
         ToPort: 3500
@@ -269,27 +294,27 @@ Resources:
         ToPort: 3900
         CidrIp: !Ref PublicOneCidr 
 
-  KafkaClientIngressSSH:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn:  KafkaClientInstanceSecurityGroup
-    Properties:
-      Description:  SSH Access
-      GroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      SourceSecurityGroupId:  !GetAtt PrometheusServerSecurityGroup.GroupId
+  #KafkaClientIngressSSH:
+  #  Type: AWS::EC2::SecurityGroupIngress
+  #  DependsOn:  KafkaClientInstanceSecurityGroup
+  #  Properties:
+  #    Description:  SSH Access
+  #    GroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+  #    IpProtocol: tcp
+  #    FromPort: 22
+  #    ToPort: 22
+  #    SourceSecurityGroupId:  !GetAtt PrometheusServerSecurityGroup.GroupId
 
   PrometheusServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      VpcId: !Ref VPC
+      VpcId: !If [ShouldCreateResource, !Ref VPC, !Ref 'VPCID'] #!Ref VPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: !Ref PublicOneCidr 
+        CidrIp: !If [ShouldCreateResource, !Ref PublicOneCidr, !Ref VPCCidr] #!Ref PublicOneCidr 
       - IpProtocol: tcp
         FromPort: 9090
         ToPort: 9090
@@ -300,7 +325,7 @@ Resources:
     DependsOn: KafkaClientInstanceSecurityGroup
     Properties:
       GroupDescription: Access to the Kafka service on the MSK cluster
-      VpcId: !Ref VPC
+      VpcId: !If [ShouldCreateResource, !Ref VPC, !Ref VPCID] #!Ref VPC
 
   KafkaCluserSGIngressMonitoring:
     Type: AWS::EC2::SecurityGroupIngress
@@ -387,7 +412,7 @@ Resources:
       Description: "Cloud9 EC2 environment"
       InstanceType: t3.medium
       Name: !Sub "${AWS::StackName}-Cloud9EC2Bastion"
-      SubnetId: !Ref PublicSubnetOne
+      SubnetId: !If [ShouldCreateResource, !Ref PublicSubnetOne, !Ref PublicSubnetID] #!Ref PublicSubnetOne
       Tags: 
         - Key: 'Purpose'
           Value: 'Cloud9EC2BastionHostInstance'
@@ -402,7 +427,7 @@ Resources:
         Fn::Select:
          - 0
          - Fn::GetAZs: {Ref: 'AWS::Region'}
-      SubnetId: !Ref PrivateSubnetMSKOne
+      SubnetId: !If [ShouldCreateResource, !Ref PrivateSubnetMSKOne, !Ref SubnetID1] # !Ref PrivateSubnetMSKOne
       SecurityGroupIds: [!GetAtt KafkaClientInstanceSecurityGroup.GroupId]
       ImageId: !Ref LatestAmiId
       Tags:
@@ -535,7 +560,7 @@ Resources:
         Fn::Select:
          - 0
          - Fn::GetAZs: {Ref: 'AWS::Region'}
-      SubnetId: !Ref PrivateSubnetMSKOne
+      SubnetId: !If [ShouldCreateResource, !Ref PrivateSubnetMSKOne, !Ref SubnetID1] #!Ref PrivateSubnetMSKOne
       SecurityGroupIds: [!GetAtt PrometheusServerSecurityGroup.GroupId]
       ImageId: !Ref LatestAmiId
       Tags:
@@ -754,7 +779,8 @@ Resources:
       NumberOfBrokerNodes: !Ref numberOfBrokerNodes
       BrokerNodeGroupInfo:
         InstanceType: !Ref brokerNodeInstanceType
-        ClientSubnets:  [!Ref 'PrivateSubnetMSKOne', !Ref 'PrivateSubnetMSKTwo', !Ref 'PrivateSubnetMSKThree']
+        #ClientSubnets:  [!Ref 'PrivateSubnetMSKOne', !Ref 'PrivateSubnetMSKTwo', !Ref 'PrivateSubnetMSKThree']
+        ClientSubnets:  [!If [ShouldCreateResource, !Ref PrivateSubnetMSKOne, !Ref SubnetID1], !If [ShouldCreateResource, !Ref PrivateSubnetMSKTwo, !Ref SubnetID2], !If [ShouldCreateResource, !Ref PrivateSubnetMSKThree, !Ref SubnetID3]]
         SecurityGroups: [!GetAtt KafkaClusterSecurityGroup.GroupId]
         StorageInfo:
           EBSStorageInfo:
@@ -790,23 +816,23 @@ Outputs:
 #========
   VPCId: 
     Description: The ID of the VPC created
-    Value: !Ref 'VPC'
+    Value: !If [ShouldCreateResource, !Ref VPC, !Ref VPCID] #!Ref 'VPC'
   
   PublicSubnetOne: 
     Description: The name of the public subnet created
-    Value: !Ref 'PublicSubnetOne'
+    Value: !If [ShouldCreateResource, !Ref PublicSubnetOne, !Ref PublicSubnetID] #!Ref 'PublicSubnetOne'
   
   PrivateSubnetMSKOne: 
     Description: The ID of private subnet one created
-    Value: !Ref 'PrivateSubnetMSKOne'
+    Value: !If [ShouldCreateResource, !Ref PrivateSubnetMSKOne, !Ref SubnetID1] #!Ref 'PrivateSubnetMSKOne'
   
   PrivateSubnetMSKTwo: 
     Description: The ID of private subnet two created
-    Value: !Ref 'PrivateSubnetMSKTwo'
+    Value: !If [ShouldCreateResource, !Ref PrivateSubnetMSKTwo, !Ref SubnetID2] #!Ref 'PrivateSubnetMSKTwo'
   
   PrivateSubnetMSKThree: 
     Description: The ID of private subnet three created
-    Value: !Ref 'PrivateSubnetMSKThree'
+    Value: !If [ShouldCreateResource, !Ref PrivateSubnetMSKThree, !Ref SubnetID3] #!Ref 'PrivateSubnetMSKThree'
   
   VPCStackName: 
     Description: The name of the VPC Stack
