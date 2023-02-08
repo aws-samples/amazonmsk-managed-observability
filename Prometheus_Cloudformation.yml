@@ -9,10 +9,13 @@ Parameters:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   VPCID:
-    Description: VPC ID for Prometheus Server
+    Description: VPC ID for Prometheus and Kafka Client. (Provide VPC ID of your current Amazon MSK Cluster)
+    Type: String
+  SubnetID:
+    Description: Subnet ID for Prometheus and Kafka Client. (Provide any one of the subnet ID of your current Amazon MSK Cluster)
     Type: String
   VPCCidr:
-    Description: VPC CIDR for the Prometheus Sec Group Ingress rule of SSH
+    Description: VPC CIDR for the Prometheus Sec Group Ingress rule of SSH. (Provide VPC CIDR of your current Amazon MSK Cluster)
     Type: String
   Cloud9InstanceType:
     Description: Instance Type for cloud9 Env
@@ -46,6 +49,7 @@ Parameters:
       - c4.2xlarge
       - c4.4xlarge
       - c4.8xlarge
+      - m5.large
   MSKClusterName:
     Description: Name of the Amazon MSK Cluster
     Type: String
@@ -59,7 +63,6 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
       VpcId: !Ref VPCID
       SecurityGroupIngress:
       - IpProtocol: tcp
@@ -79,11 +82,7 @@ Resources:
       InstanceType: t3.medium
       KeyName: !Ref 'KeyName'
       IamInstanceProfile: !Ref PrometheusProfile
-      AvailabilityZone: 
-        Fn::Select:
-         - 0
-         - Fn::GetAZs: {Ref: 'AWS::Region'}
-      #SubnetId: !Ref PrivateSubnetID
+      SubnetId: !Ref SubnetID
       SecurityGroupIds: [!GetAtt PrometheusServerSecurityGroup.GroupId]
       ImageId: !Ref LatestAmiId
       Tags:
@@ -153,214 +152,6 @@ Resources:
       Roles: 
         - "PrometheusAMPRole"
 #====
-#===
-  MSKIAMManagedPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    DependsOn:  KafkaClientRole
-    Properties: 
-      Description: Managed Policy to access MSK using IAM attached to KafkaClientRole
-      ManagedPolicyName: MSKConnectAuthentication
-      Path: /
-      PolicyDocument: 
-        Version: '2012-10-17'
-        Statement:
-        # At Cluster level permission
-        - Effect: Allow
-          Action:
-          - kafka:Get*
-          - kafka:Describe*
-          - kafka:List*
-          - kafka:Tag*
-          Resource:  
-            - Fn::Join:
-              - ''
-              - - 'arn:aws:kafka:'
-                - !Ref 'AWS::Region'
-                - ':'
-                - !Ref 'AWS::AccountId'
-                - ':cluster/'
-                - '*'        
-        # At Specific Cluster level permission
-        - Effect: Allow
-          Action:
-          - kafka-cluster:Connect
-          - kafka-cluster:AlterCluster
-          - kafka-cluster:DescribeCluster
-          - kafka-cluster:DescribeClusterDynamicConfiguration
-          Resource:  
-            - Fn::Join:
-              - ''
-              - - 'arn:aws:kafka:'
-                - !Ref 'AWS::Region'
-                - ':'
-                - !Ref 'AWS::AccountId'
-                - ':cluster/'
-                - !Ref MSKClusterName # ARN of the Cluster
-                - '/*'
-        # At Topic level permission
-        - Effect: Allow
-          Action:
-          - kafka-cluster:*Topic*
-          - kafka-cluster:WriteData
-          - kafka-cluster:ReadData
-          - kafka-cluster:Connect
-          Resource: 
-            - Fn::Join:
-              - ''
-              - - 'arn:aws:kafka:'
-                - !Ref 'AWS::Region'
-                - ':'
-                - !Ref 'AWS::AccountId'
-                - ':topic/'
-                - !Ref MSKClusterName
-                - '/*/*'
-        # At group level permission
-        - Effect: Allow
-          Action:
-          - kafka-cluster:AlterGroup
-          - kafka-cluster:DescribeGroup
-          - kafka-cluster:Connect
-          - kafka-cluster:DescribeTopic
-          - kafka-cluster:ReadData
-          Resource: 
-            - Fn::Join:
-              - ''
-              - - 'arn:aws:kafka:'
-                - !Ref 'AWS::Region'
-                - ':'
-                - !Ref 'AWS::AccountId'
-                - ':group/'
-                - !Ref MSKClusterName
-                - '/*/*'
-      Roles: 
-        - "KafkaClientRole"
-#======
-  KafkaClientInstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
-      #VpcId: !Ref VPC
-      VpcId: !Ref VPCID
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: !Ref VPCCidr
-      - IpProtocol: tcp
-        FromPort: 3500
-        ToPort: 3500
-        CidrIp: !Ref VPCCidr
-      - IpProtocol: tcp
-        FromPort: 3600
-        ToPort: 3600
-        CidrIp: !Ref VPCCidr
-      - IpProtocol: tcp
-        FromPort: 3800
-        ToPort: 3800
-        CidrIp: !Ref VPCCidr
-      - IpProtocol: tcp
-        FromPort: 3900
-        ToPort: 3900
-        CidrIp: !Ref VPCCidr
-
-  KafkaClientIngressSSH:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn:  KafkaClientInstanceSecurityGroup
-    Properties:
-      Description:  SSH Access
-      GroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      SourceSecurityGroupId:  !GetAtt PrometheusServerSecurityGroup.GroupId
-
-
-  KafkaClusterSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    DependsOn: KafkaClientInstanceSecurityGroup
-    Properties:
-      GroupDescription: Access to the Kafka service on the MSK cluster
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
-      VpcId: !Ref VPCID
-
-  KafkaCluserSGIngressMonitoring:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn:  KafkaClusterSecurityGroup
-    Properties:
-      Description:  Prometheus-Monitoring
-      GroupId:  !GetAtt KafkaClusterSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 11001
-      ToPort: 11002
-      SourceSecurityGroupId:  !GetAtt PrometheusServerSecurityGroup.GroupId
-
-
-  KafkaClusterSGIngressPlainText:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClusterSecurityGroup
-    Properties:
-      Description:  Plaintext Kafka
-      GroupId:  !GetAtt KafkaClusterSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 9094
-      ToPort: 9094
-      SourceSecurityGroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId 
-
-  KafkaClusterSGIngressEncrypted:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClusterSecurityGroup
-    Properties:
-      Description:  Encrypted Kafka
-      GroupId:  !GetAtt KafkaClusterSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 9092
-      ToPort: 9092
-      SourceSecurityGroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-   
-  KafkaClusterSGIngressIAMAuth:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClusterSecurityGroup
-    Properties:
-      Description:  IAM Authentication Kafka
-      GroupId:  !GetAtt KafkaClusterSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 9098
-      ToPort: 9098
-      SourceSecurityGroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-
-  KafkaClusterSGIngressZookeeper:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClusterSecurityGroup
-    Properties:
-      Description:  Zookeeper Access
-      GroupId:  !GetAtt KafkaClusterSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 2181
-      ToPort: 2181
-      SourceSecurityGroupId:  !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-
-  KafkaClientInstanceSecurityGroup8081:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClientInstanceSecurityGroup
-    Properties:
-      Description: Enable access to Schema Registry inside the KafkaClientInstanceSecurityGroup
-      GroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 8081
-      ToPort: 8081
-      SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-
-  KafkaClientInstanceSecurityGroup8083:
-    Type: AWS::EC2::SecurityGroupIngress
-    DependsOn: KafkaClientInstanceSecurityGroup
-    Properties:
-      Description: Enable access to Kafka Connect inside the KafkaClientInstanceSecurityGroup
-      GroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: 8083
-      ToPort: 8083
-      SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
 
   Cloud9EC2Bastion:
     Type: AWS::Cloud9::EnvironmentEC2
@@ -369,183 +160,18 @@ Resources:
       Description: "Cloud9 EC2 environment"
       InstanceType: !Ref Cloud9InstanceType # t3.medium
       Name: !Sub "${AWS::StackName}-Cloud9EC2Bastion"
-      #SubnetId: !Ref SubnetIDforCloud9
+      SubnetId: !Ref SubnetID
       Tags: 
         - Key: 'Purpose'
           Value: 'Cloud9EC2BastionHostInstance'
 
-  KafkaClientRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Description: Role to access MSK Using IAM
-      RoleName: KafkaClientRole
-
-  KafkaClientProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      InstanceProfileName: !Join
-                            - '-'
-                            - - 'KafkaClient'
-                              - !Ref 'AWS::StackName'
-      Roles:
-        - !Ref KafkaClientRole
-
-
-
-  KafkaClientEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t3.medium
-      KeyName: !Ref 'KeyName'
-      IamInstanceProfile: !Ref KafkaClientProfile
-      AvailabilityZone: 
-        Fn::Select:
-         - 0
-         - Fn::GetAZs: {Ref: 'AWS::Region'}
-      #SubnetId: !GetAtt MSKVPCStack.Outputs.PrivateSubnetMSKOne
-      #SubnetId: !Ref PrivateSubnetMSKOne
-      SecurityGroupIds: [!GetAtt KafkaClientInstanceSecurityGroup.GroupId]
-      ImageId: !Ref LatestAmiId
-      Tags:
-        - Key: 'Name'
-          Value: 'KafkaClientInstance'
-      UserData: 
-        Fn::Base64: 
-          !Sub |
-            #!/bin/bash
-            yum update -y
-            yum install python3.7 -y
-            yum install java-1.8.0-openjdk-devel -y
-            yum install nmap-ncat -y
-            yum install git -y
-            yum erase awscli -y
-            yum install jq -y
-            amazon-linux-extras install docker -y
-            service docker start
-            usermod -a -G docker ec2-user
-
-            cd /home/ec2-user
-            wget https://bootstrap.pypa.io/get-pip.py
-            su -c "python3.7 get-pip.py --user" -s /bin/sh ec2-user
-            su -c "/home/ec2-user/.local/bin/pip3 install boto3 --user" -s /bin/sh ec2-user
-            su -c "/home/ec2-user/.local/bin/pip3 install awscli --user" -s /bin/sh ec2-user
-            su -c "/home/ec2-user/.local/bin/pip3 install kafka-python --user" -s /bin/sh ec2-user
-
-            # install AWS CLI 2 - access with aws2
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install -b /usr/local/bin/aws2
-            su -c "ln -s /usr/local/bin/aws2/aws ~/.local/bin/aws2" -s /bin/sh ec2-user
-
-            # Create dirs, get Apache Kafka 2.7.0 and unpack it
-            su -c "mkdir -p kafka270 confluent" -s /bin/sh ec2-user
-            
-            cd /home/ec2-user
-            ln -s /home/ec2-user/kafka270 /home/ec2-user/kafka
-            cd kafka270
-            su -c "wget http://archive.apache.org/dist/kafka/2.7.0/kafka_2.12-2.7.0.tgz" -s /bin/sh ec2-user
-            su -c "tar -xzf kafka_2.12-2.7.0.tgz --strip 1" -s /bin/sh ec2-user
-
-            # Get Confluent Community and unpack it
-            cd /home/ec2-user
-            cd confluent
-            su -c "wget http://packages.confluent.io/archive/5.4/confluent-community-5.4.1-2.12.tar.gz" -s /bin/sh ec2-user
-            su -c "tar -xzf confluent-community-5.4.1-2.12.tar.gz --strip 1" -s /bin/sh ec2-user
-            
-            # Initialize the Kafka cert trust store
-            su -c 'find /usr/lib/jvm/ -name "cacerts" -exec cp {} /tmp/kafka.client.truststore.jks \;' -s /bin/sh ec2-user
-
-            cd /tmp
-            su -c "mkdir -p kafka" -s /bin/sh ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/producer.properties_msk /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/consumer.properties /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/jars/KafkaClickstreamClient-1.0-SNAPSHOT.jar /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/jars/KafkaClickstreamConsumer-1.0-SNAPSHOT.jar /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/jars/CustomMM2ReplicationPolicy-1.0-SNAPSHOT.jar /home/ec2-user/confluent/share/java/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/jars/MM2GroupOffsetSync-1.0-SNAPSHOT.jar /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/MSKLabs/schema-registry-ssl/schema-registry.properties /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/generatePropertiesFiles.py /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/generateStartupFile.py /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/AuthMSK-1.0-SNAPSHOT.jar /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/connect-distributed.properties /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/kafka-consumer-python.py /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/setup-env.py /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/GlobalSeqNo.py /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/mm2-msc.json /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/mm2-hbc.json /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/mm2-cpc.json /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/mm2-cpc-cust-repl-policy.json /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/mm2-msc-cust-repl-policy.json /tmp/kafka" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/kafka-connect.yml /home/ec2-user/prometheus" -l ec2-user
-            su -c "aws s3 cp s3://aws-streaming-artifacts/msk-lab-resources/kafka-producer-consumer.yml /home/ec2-user/prometheus" -l ec2-user
-
-            # Setup unit in systemd for Schema Registry
-            echo -n "
-            [Unit]
-            Description=Confluent Schema Registry
-            After=network.target
-
-            [Service]
-            Type=simple
-            User=ec2-user
-            ExecStart=/bin/sh -c '/home/ec2-user/confluent/bin/schema-registry-start /tmp/kafka/schema-registry.properties > /tmp/kafka/schema-registry.log 2>&1'
-            ExecStop=/home/ec2-user/confluent/bin/schema-registry-stop
-            Restart=on-abnormal
-
-            [Install]
-            WantedBy=multi-user.target" > /etc/systemd/system/confluent-schema-registry.service
-
-            # Setup unit in systemd for Kafka Connect
-            echo -n "
-            [Unit]
-            Description=Kafka Connect
-            After=network.target
-
-            [Service]
-            Type=simple
-            User=ec2-user
-            ExecStart=/bin/sh -c '/home/ec2-user/kafka/bin/connect-distributed.sh /tmp/kafka/connect-distributed.properties > /tmp/kafka/kafka-connect.log 2>&1'
-            Restart=on-abnormal
-
-            [Install]
-            WantedBy=multi-user.target" > /etc/systemd/system/kafka-connect.service
-
-            #setup bash env
-            su -c "echo 'export PS1=\"KafkaClientEC2Instance1 [\u@\h \W\\]$ \"' >> /home/ec2-user/.bash_profile" -s /bin/sh ec2-user
-            su -c "echo '[ -f /tmp/kafka/setup_env ] && . /tmp/kafka/setup_env' >> /home/ec2-user/.bash_profile" -s /bin/sh ec2-user
-
-            # Configure client.properties - Needed for IAM Authentication mode of Amazon MSK
-            su -c "cp /usr/lib/jvm/jre-1.8.0-openjdk-1.8.0.342.b07-1.amzn2.0.1.x86_64/lib/security/cacerts /tmp/kafka.client.truststore.jks" -s /bin/sh ec2-user
-            su -c "echo ssl.truststore.location=/tmp/kafka.client.truststore.jks >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-            su -c "echo security.protocol=SASL_SSL >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-            su -c "echo sasl.mechanism=AWS_MSK_IAM >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-            su -c "echo sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required\; >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-            su -c "echo sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler >> /home/ec2-user/kafka/config/client.properties" -s /bin/sh ec2-user
-
-            # Download jar file for MSK IAM Authentication
-            cd /home/ec2-user/kafka/libs
-            su -c "wget https://github.com/aws/aws-msk-iam-auth/releases/download/v1.1.5/aws-msk-iam-auth-1.1.5-all.jar" -s /bin/sh ec2-user
-
-#======
 
 #========
 Outputs:
 #========
-  prometheusInstancePrivateDNS:
-    Description: The Public DNS for the Prometheus instance
-    Value: !GetAtt PrometheusEC2Instance.PrivateDnsName
   SSHPrometheusInstance:
-    Description: SSH command for Kafka the EC2 instance
-    Value: !Sub ssh -A ec2-user@${PrometheusEC2Instance.PrivateDnsName}
+    Description: SSH command for Prometheus instance
+    Value: !Join ["" , [ "ssh -i /home/ec2-user/environment/EC2KeyMSKDemo ec2-user@", !GetAtt PrometheusEC2Instance.PrivateIp ]]
     Export:
       Name: !Sub "${AWS::StackName}-PrometheusEC2Instance"
   PrometheusSecurityGroupId:
@@ -556,28 +182,6 @@ Outputs:
   PrometheusInstanceId:
     Description: InstanceId of the newly created Prometheus instance
     Value: !Ref 'PrometheusEC2Instance'
-  KafkaClientEC2InstancePrivateDNS:
-    Description: The Public DNS for the EC2 instance
-    Value: !GetAtt KafkaClientEC2Instance.PrivateDnsName
-  SSHKafkaClientEC2Instance:
-    Description: SSH command for Kafka the EC2 instance
-    Value: !Sub ssh -A ec2-user@${KafkaClientEC2Instance.PrivateDnsName}
-    Export:
-      Name: !Sub "${AWS::StackName}-SSHKafkaClientEC2Instance"
-  KafkaClientEC2InstanceSecurityGroupId:
-    Description: The security group id for the EC2 instance
-    Value: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-    Export:
-      Name: !Sub "${AWS::StackName}-KafkaClientEC2InstanceSecurityGroupId"
-  KafkaClusterSecurityGroupId:
-    Description: The security group id for the MSK Cluster
-    Value: !GetAtt KafkaClusterSecurityGroup.GroupId
-    Export:
-      Name: !Sub "${AWS::StackName}-KafkaClusterSecurityGroupId"
-  KafkaClientPrivateIP:
-    Description: The Private IP of the Kafka Client
-    Value: !GetAtt KafkaClientEC2Instance.PrivateIp
-
   PrometheusInstancePrivateIP:
     Description: The Private IP of the Prometheus server
     Value: !GetAtt PrometheusEC2Instance.PrivateIp

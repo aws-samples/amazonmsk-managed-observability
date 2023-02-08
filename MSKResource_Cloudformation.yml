@@ -1,6 +1,31 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
 
+  VPCCidr:
+    Description: VPC CIDR for the deploying the stackcs
+    Type: String
+    Default: '10.0.0.0/16'
+
+  PublicOneCidr:
+    Description: CIDR for the public subnet
+    Default:  '10.0.0.0/24'
+    Type: String
+
+  PrivateSubnetMSKOneCidr:
+    Description: CIDR for the private Subnet-1
+    Type: String
+    Default: '10.0.1.0/24'
+
+  PrivateSubnetMSKTwoCidr:
+    Description: CIDR for the private Subnet-2
+    Type: String
+    Default: '10.0.2.0/24'
+
+  PrivateSubnetMSKThreeCidr:
+    Description: CIDR for the private Subnet-3
+    Type: String
+    Default: '10.0.3.0/24'
+
   MSKClusterName:
     Description: Name of the Amazon MSK Cluster
     Type: String
@@ -42,43 +67,45 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  WanttoDeployinNewVPC:
+    Type: String
+    Description:  Specify if you want to deploy in the exising VPC or new VPC
+    Default: "true"
+    AllowedValues:
+    - "true"
+    - "false"
+
+Conditions:
+  ShouldCreateResource:
+    !Equals [true, !Ref WanttoDeployinNewVPC]
 
 
-Mappings:
-  SubnetConfig:
-      VPC:
-        CIDR: '10.0.0.0/16'
-      PublicOne:
-        CIDR: '10.0.0.0/24'
-      PrivateSubnetMSKOne:
-        CIDR: '10.0.1.0/24'
-      PrivateSubnetMSKTwo:
-        CIDR: '10.0.2.0/24'
-      PrivateSubnetMSKThree:
-        CIDR: '10.0.3.0/24'
 
 #=========
 Resources:
 #=========
   VPC:
     Type: AWS::EC2::VPC
+    Condition: ShouldCreateResource
     Properties:
       EnableDnsSupport: true
       EnableDnsHostnames: true
-      CidrBlock: !FindInMap ['SubnetConfig', 'VPC', 'CIDR']
+      CidrBlock: !Ref VPCCidr
       Tags:
         - Key: 'Name'
-          Value: 'MSKVPC'
+          Value: 'DemoMSKVPC'
 
   PublicSubnetOne:
     Type: AWS::EC2::Subnet
+    Condition: ShouldCreateResource
     Properties:
       AvailabilityZone:
          Fn::Select:
          - 0
          - Fn::GetAZs: {Ref: 'AWS::Region'}
       VpcId: !Ref 'VPC'
-      CidrBlock: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR']
+      CidrBlock: !Ref PublicOneCidr
       MapPublicIpOnLaunch: true
       Tags:
         - Key: 'Name'
@@ -86,13 +113,14 @@ Resources:
   
   PrivateSubnetMSKOne:
     Type: AWS::EC2::Subnet
+    Condition: ShouldCreateResource
     Properties:
       AvailabilityZone:
          Fn::Select:
          - 0
          - Fn::GetAZs: {Ref: 'AWS::Region'}
       VpcId: !Ref 'VPC'
-      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateSubnetMSKOne', 'CIDR']
+      CidrBlock: !Ref PrivateSubnetMSKOneCidr
       MapPublicIpOnLaunch: false
       Tags:
         - Key: 'Name'
@@ -100,13 +128,14 @@ Resources:
   
   PrivateSubnetMSKTwo:
     Type: AWS::EC2::Subnet
+    Condition: ShouldCreateResource
     Properties:
       AvailabilityZone:
          Fn::Select:
          - 1
          - Fn::GetAZs: {Ref: 'AWS::Region'}
       VpcId: !Ref 'VPC'
-      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateSubnetMSKTwo', 'CIDR']
+      CidrBlock: !Ref PrivateSubnetMSKTwoCidr
       MapPublicIpOnLaunch: false
       Tags:
         - Key: 'Name'
@@ -114,13 +143,14 @@ Resources:
   
   PrivateSubnetMSKThree:
     Type: AWS::EC2::Subnet
+    Condition: ShouldCreateResource
     Properties:
       AvailabilityZone:
          Fn::Select:
          - 2
          - Fn::GetAZs: {Ref: 'AWS::Region'}
       VpcId: !Ref 'VPC'
-      CidrBlock: !FindInMap ['SubnetConfig', 'PrivateSubnetMSKThree', 'CIDR']
+      CidrBlock: !Ref PrivateSubnetMSKThreeCidr
       MapPublicIpOnLaunch: false
       Tags:
         - Key: 'Name'
@@ -128,21 +158,25 @@ Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    Condition: ShouldCreateResource
   
   GatewayAttachement:
     Type: AWS::EC2::VPCGatewayAttachment
+    Condition: ShouldCreateResource
     Properties:
       VpcId: !Ref 'VPC'
       InternetGatewayId: !Ref 'InternetGateway'
 
   NATEIP:
     Type: AWS::EC2::EIP
+    Condition: ShouldCreateResource
     DependsOn: GatewayAttachement
     Properties: 
       Domain: vpc
 
   NATGateway:
     Type: AWS::EC2::NatGateway
+    Condition: ShouldCreateResource
     Properties: 
       AllocationId: !GetAtt NATEIP.AllocationId
       SubnetId: !Ref 'PublicSubnetOne'
@@ -152,11 +186,13 @@ Resources:
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
+    Condition: ShouldCreateResource
     Properties:
       VpcId: !Ref 'VPC'
   
   PublicRoute:
     Type: AWS::EC2::Route
+    Condition: ShouldCreateResource
     DependsOn: GatewayAttachement
     Properties:
       RouteTableId: !Ref 'PublicRouteTable'
@@ -165,17 +201,20 @@ Resources:
   
   PublicSubnetOneRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: ShouldCreateResource
     Properties:
       SubnetId: !Ref PublicSubnetOne
       RouteTableId: !Ref PublicRouteTable
 
   PrivateRouteTable:
     Type: AWS::EC2::RouteTable
+    Condition: ShouldCreateResource
     Properties:
       VpcId: !Ref 'VPC'
 
   PrivateRoute:
     Type: AWS::EC2::Route
+    Condition: ShouldCreateResource
     DependsOn: NATGateway
     Properties:
       RouteTableId: !Ref 'PrivateRouteTable'
@@ -184,18 +223,21 @@ Resources:
 
   PrivateSubnetMSKOneRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: ShouldCreateResource
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnetMSKOne
   
   PrivateSubnetMSKTwoRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: ShouldCreateResource
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnetMSKTwo
   
   PrivateSubnetMSKThreeRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: ShouldCreateResource
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnetMSKThree
@@ -204,29 +246,28 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
       VpcId: !Ref VPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] # 10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr
       - IpProtocol: tcp
         FromPort: 3500
         ToPort: 3500
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] # 10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr 
       - IpProtocol: tcp
         FromPort: 3600
         ToPort: 3600
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] # 10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr 
       - IpProtocol: tcp
         FromPort: 3800
         ToPort: 3800
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] #10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr 
       - IpProtocol: tcp
         FromPort: 3900
         ToPort: 3900
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] #10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr 
 
   KafkaClientIngressSSH:
     Type: AWS::EC2::SecurityGroupIngress
@@ -243,13 +284,12 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22 from BastionHostSecurityGroup
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
       VpcId: !Ref VPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: !FindInMap ['SubnetConfig', 'PublicOne', 'CIDR'] # 10.0.0.0/24
+        CidrIp: !Ref PublicOneCidr 
       - IpProtocol: tcp
         FromPort: 9090
         ToPort: 9090
@@ -260,7 +300,6 @@ Resources:
     DependsOn: KafkaClientInstanceSecurityGroup
     Properties:
       GroupDescription: Access to the Kafka service on the MSK cluster
-      #VpcId: !GetAtt MSKVPCStack.Outputs.VPCId
       VpcId: !Ref VPC
 
   KafkaCluserSGIngressMonitoring:
@@ -528,7 +567,7 @@ Resources:
             Principal:
               Service: ec2.amazonaws.com
             Action: 'sts:AssumeRole'
-      RoleName: PrometheusAMPRole
+      RoleName: !Sub "PrometheusAMPRole-${AWS::AccountId}-${AWS::Region}"
       Description: Role to access AMP Workspace
   
   PrometheusProfile:
@@ -537,7 +576,8 @@ Resources:
       InstanceProfileName: !Join
                             - '-'
                             - - 'Ec2MSSKCFProfile'
-                              - !Ref 'AWS::StackName'
+                              - !Ref 'AWS::AccountId'
+                              - !Ref 'AWS::Region'
       Roles:
         - !Ref PrometheusRole
 
@@ -549,7 +589,7 @@ Resources:
     DependsOn: PrometheusRole # Ensure Role is created first
     Properties: 
       Description: Managed Policy to access prometheus Workspace
-      ManagedPolicyName: PrometheusAccessToAMP
+      ManagedPolicyName: !Sub "PrometheusAccessToAMP-${AWS::AccountId}-${AWS::Region}"
       Path: /
       PolicyDocument: 
         Version: '2012-10-17'
@@ -563,7 +603,7 @@ Resources:
           - aps:RemoteWrite
           Resource: "*" 
       Roles: 
-        - "PrometheusAMPRole"
+        - !Sub "PrometheusAMPRole-${AWS::AccountId}-${AWS::Region}"
 #====
 
 
@@ -580,7 +620,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role to access MSK Using IAM
-      RoleName: KafkaClientRole
+      RoleName: !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
       
   KafkaClientProfile:
     Type: AWS::IAM::InstanceProfile
@@ -589,8 +629,10 @@ Resources:
                             - '-'
                             - - 'KafkaClient'
                               - !Ref 'AWS::StackName'
+                              - !Ref 'AWS::AccountId'
+                              - !Ref 'AWS::Region'
       Roles:
-        - !Ref KafkaClientRole        
+        - !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
 
 
 #=====
@@ -598,7 +640,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: "DemoMSKCWLog"
-      RetentionInDays: 7
+      RetentionInDays: 1
   
   MSKClusterCustomConfig:
     Type: AWS::MSK::Configuration
@@ -625,7 +667,7 @@ Resources:
     DependsOn: KafkaClientRole
     Properties: 
       Description: Managed Policy to access MSK using IAM attached to KafkaClientRole
-      ManagedPolicyName: MSKConnectAuthentication
+      ManagedPolicyName: !Sub "MSKConnectAuthentication-${AWS::AccountId}-${AWS::Region}"
       Path: /
       PolicyDocument: 
         Version: '2012-10-17'
@@ -699,7 +741,7 @@ Resources:
                 - !Ref MSKClusterName
                 - '/*/*'
       Roles: 
-        - "KafkaClientRole"
+        - !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
 
   MSKCluster:
     Type: 'AWS::MSK::Cluster'
@@ -749,61 +791,35 @@ Outputs:
   VPCId: 
     Description: The ID of the VPC created
     Value: !Ref 'VPC'
-    Export:
-      Name: !Sub "${AWS::StackName}-VPCID"
+  
   PublicSubnetOne: 
     Description: The name of the public subnet created
     Value: !Ref 'PublicSubnetOne'
-    Export:
-      Name: !Sub "${AWS::StackName}-PublicSubnetOne"
+  
   PrivateSubnetMSKOne: 
     Description: The ID of private subnet one created
     Value: !Ref 'PrivateSubnetMSKOne'
-    Export:
-      Name: !Sub "${AWS::StackName}-PrivateSubnetMSKOne"
+  
   PrivateSubnetMSKTwo: 
     Description: The ID of private subnet two created
     Value: !Ref 'PrivateSubnetMSKTwo'
-    Export:
-      Name: !Sub "${AWS::StackName}-PrivateSubnetMSKTwo"
+  
   PrivateSubnetMSKThree: 
     Description: The ID of private subnet three created
     Value: !Ref 'PrivateSubnetMSKThree'
-    Export:
-      Name: !Sub "${AWS::StackName}-PrivateSubnetMSKThree"
+  
   VPCStackName: 
     Description: The name of the VPC Stack
     Value: !Ref 'AWS::StackName'
-    Export:
-      Name: !Sub "${AWS::StackName}-VPCStackName"
-  KafkaClientEC2InstancePrivateDNS:
-    Description: The Public DNS for the EC2 instance
-    Value: !GetAtt KafkaClientEC2Instance.PrivateDnsName
-  SSHKafkaClientEC2Instance:
-    Description: SSH command for Kafka the EC2 instance
-    Value: !Sub ssh -A ec2-user@${KafkaClientEC2Instance.PrivateDnsName}
-    Export:
-      Name: !Sub "${AWS::StackName}-SSHKafkaClientEC2Instance"
+  
   KafkaClientEC2InstanceSecurityGroupId:
     Description: The security group id for the EC2 instance
     Value: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
-    Export:
-      Name: !Sub "${AWS::StackName}-KafkaClientEC2InstanceSecurityGroupId"
+
   KafkaClusterSecurityGroupId:
     Description: The security group id for the MSK Cluster
     Value: !GetAtt KafkaClusterSecurityGroup.GroupId
-    Export:
-      Name: !Sub "${AWS::StackName}-KafkaClusterSecurityGroupId"
-  SchemaRegistryUrl:
-    Description: The url for the Schema Registry
-    Value: !Sub http://${KafkaClientEC2Instance.PrivateDnsName}:8081
-    Export:
-      Name: !Sub "${AWS::StackName}-SchemaRegistryUrl"
-  KafkaClientRoleArn:
-    Description: Arn of the Role attached to Kafka Client
-    Value: !GetAtt KafkaClientRole.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-KafkaClientRoleArn"
+
   MSKClusterArn:
     Description: ARN of created MSK cluster
     Value: !Ref MSKCluster
@@ -815,4 +831,10 @@ Outputs:
   PrometheusInstancePrivateIP:
     Description: The Private IP of the Prometheus server
     Value: !GetAtt PrometheusEC2Instance.PrivateIp
+  SSHPrometheusInstance:
+    Description: SSH command for Prometheus instance
+    Value: !Join ["" , [ "ssh -i /home/ec2-user/environment/EC2KeyMSKDemo ec2-user@", !GetAtt PrometheusEC2Instance.PrivateIp ]]
   
+  SSHKafkaClientEC2Instance:
+    Description: SSH command for Kafka the EC2 instance
+    Value: !Join ["" , [ "ssh -i /home/ec2-user/environment/EC2KeyMSKDemo ec2-user@", !GetAtt KafkaClientEC2Instance.PrivateIp ]]    
