@@ -645,19 +645,18 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Description: Role to access MSK Using IAM
-      RoleName: !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
+      RoleName: !Sub "KafkaClientRole-${AWS::AccountId}-${AWS::Region}"
       
   KafkaClientProfile:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       InstanceProfileName: !Join
                             - '-'
-                            - - 'KafkaClient'
-                              - !Ref 'AWS::StackName'
+                            - - 'KafkaClientRole'
                               - !Ref 'AWS::AccountId'
                               - !Ref 'AWS::Region'
       Roles:
-        - !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
+        - !Ref KafkaClientRole
 
 
 #=====
@@ -766,7 +765,7 @@ Resources:
                 - !Ref MSKClusterName
                 - '/*/*'
       Roles: 
-        - !Sub "KafkaClientRol-${AWS::AccountId}-${AWS::Region}"
+        - !Sub "KafkaClientRole-${AWS::AccountId}-${AWS::Region}"
 
   MSKCluster:
     Type: 'AWS::MSK::Cluster'
