@@ -1,4 +1,31 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Network Configuration"
+        Parameters: 
+          - VPCID
+          - VPCCidr
+          - SubnetID
+      - 
+        Label: 
+          default: "Amazon MSK Cluster Detail"
+        Parameters: 
+          - MSKClusterName
+      -
+        Label: 
+          default: "Prometheus and Cloud9 Configuration"
+        Parameters: 
+          - KeyName
+          - LatestAmiId
+          - Cloud9InstanceType
+    ParameterLabels: 
+      VPCID: 
+        default: "Specify the VPC ID where your existing Amazon MSK Cluster is deployed"
+
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance

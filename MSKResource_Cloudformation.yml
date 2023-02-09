@@ -1,4 +1,49 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Network Configuration - Generic"
+        Parameters: 
+          - WanttoDeployinNewVPC
+          - VPCCidr
+      - 
+        Label: 
+          default: "Network Configuration - For New VPC"
+        Parameters: 
+          - PrivateSubnetMSKOneCidr
+          - PrivateSubnetMSKTwoCidr
+          - PrivateSubnetMSKThreeCidr
+          - PublicOneCidr
+      -
+        Label: 
+          default: "Network Configuration - For Existing VPC"
+        Parameters: 
+          - VPCID
+          - SubnetID1
+          - SubnetID2
+          - SubnetID3
+          - PublicSubnetID
+      - 
+        Label: 
+          default: "Amazon MSK Cluster Configuration"
+        Parameters: 
+          - MSKClusterName
+          - kafkaVersion
+          - numberOfBrokerNodes
+          - brokerNodeInstanceType
+      -
+        Label: 
+          default: "Prometheus Configuration"
+        Parameters: 
+          - KeyName
+          - LatestAmiId
+    ParameterLabels: 
+      WanttoDeployinNewVPC: 
+        default: "Stack to be depployed in NEW VPC? (true/false) - if false, you MUST provide VPCCidr and other details under Existing VPC section"
+
 Parameters:
 
   VPCCidr:
