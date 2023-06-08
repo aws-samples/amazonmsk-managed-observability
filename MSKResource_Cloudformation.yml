@@ -716,7 +716,6 @@ Resources:
     Properties: 
       Name: "TestConfigDemoMSK"
       ServerProperties: |
-        delete.topic.enable = true 
         log.retention.hours = 8
         zookeeper.session.timeout.ms = 18000
         default.replication.factor = 3

@@ -135,3 +135,5 @@ Outputs:
       - WorkspaceId
   PrometheusEndpointWriteURL:
     Value: !Join ["" , [ !GetAtt APSWorkspace.PrometheusEndpoint , "api/v1/remote_write" ]]
+  GrafanaWorkSpaceRegion:
+    Value: !Ref "AWS::Region"
