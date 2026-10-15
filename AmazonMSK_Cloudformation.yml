@@ -32,19 +32,10 @@ Parameters:
   kafkaVersion:
     Description: Specify the desired Kafka software version
     Type: String
-    Default: "2.8.1"
+    Default: "3.9.x"
     AllowedValues:
-    - 2.8.1
-    - 2.8.0
-    - 2.7.1
-    - 2.7.0
-    - 2.6.2
-    - 2.6.1
-    - 2.6.0
-    - 2.5.1
-    - 2.4.1.1
-    - 2.3.1
-    - 2.2.1    
+    - 3.9.x
+    - 3.8.x
 
   numberOfBrokerNodes:
     Description: The desired total number of broker nodes in the kafka cluster. It must be a multiple of the number of specified client subnets
