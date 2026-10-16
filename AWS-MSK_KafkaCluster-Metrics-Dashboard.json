@@ -2728,7 +2728,7 @@
                   "type": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "sum by(instance) (kafka_server_ZooKeeperClientMetrics_Count{job=~\"$job\", name=~\"ZooKeeperRequestLatencyMs\", instance=~\"$broker\"})",
+                "expr": "sum by(instance) (irate(kafka_server_ZooKeeperClientMetrics_Count{job=~\"$job\", name=~\"ZooKeeperRequestLatencyMs\", instance=~\"$broker\"}[5m]))",
                 "format": "time_series",
                 "interval": "",
                 "intervalFactor": 1,
