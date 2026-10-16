@@ -9,7 +9,7 @@ CloudFormation Templates :
 	* AMG_AMP_Cloudformation.yml - Deploys resource for Amazon Managed Prometheus and Amazon Managed Grafana
 
 * If you don't have any existing Amazon MSK cluster or you would like to do a PoC for this Amazon Managed observability solution for MSK, use below template files to deploy the resources
-	* MSKResource_Cloudformation.yml - Deploys resources for needed to run Amazon MSK Cluster in a new VPC viz. VPC, Subnets, IAM Roles, Kafka Client, Cloud9, EC2 to run Prometheus service, etc.
+	* MSKResource_Cloudformation.yml - Deploys resources for needed to run Amazon MSK Cluster in a new VPC viz. VPC, Subnets, IAM Roles, Kafka Client, EC2 to run Prometheus service, etc. Connect to the EC2 instances with AWS Systems Manager Session Manager.
 	* AMG_AMP_Cloudformation.yml - Deploys resource for Amazon Managed Prometheus and Amazon Managed Grafana
 
 Grafana Dashboard JSON files : Use below files to import Grafana dashbaord for
